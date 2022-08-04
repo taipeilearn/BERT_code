@@ -45,6 +45,45 @@ category_list = [
     'topic-news'
 ]
 
+# トークナイザのロード
+tokenizer = BertJapaneseTokenizer.from_pretrained(MODEL_NAME)
+
+# 各データの形式を整える
+max_length = 128
+dataset_for_loader = []
+for label, category in enumerate(tqdm(category_list)):
+    for file in glob.glob(f'./text/{category}/{category}*'):
+        lines = open(file).read().splitlines()
+        text = '\n'.join(lines[3:]) # ファイルの4行目からを抜き出す。
+        encoding = tokenizer(
+            text,
+            max_length=max_length, 
+            padding='max_length',
+            truncation=True
+        )
+        encoding['labels'] = label # ラベルを追加
+        encoding = { k: torch.tensor(v) for k, v in encoding.items() }
+        dataset_for_loader.append(encoding)
+
+print(dataset_for_loader[0])
+
+# データセットの分割
+random.shuffle(dataset_for_loader) # ランダムにシャッフル
+n = len(dataset_for_loader)
+n_train = int(0.6*n)
+n_val = int(0.2*n)
+dataset_train = dataset_for_loader[:n_train] # 学習データ
+dataset_val = dataset_for_loader[n_train:n_train+n_val] # 検証データ
+dataset_test = dataset_for_loader[n_train+n_val:] # テストデータ
+
+# データセットからデータローダを作成
+# 学習データはshuffle=Trueにする。
+dataloader_train = DataLoader(
+    dataset_train, batch_size=32, shuffle=True
+) 
+dataloader_val = DataLoader(dataset_val, batch_size=256)
+dataloader_test = DataLoader(dataset_test, batch_size=256)
+
 class BertForSequenceClassification_pl(pl.LightningModule):
         
     def __init__(self, model_name, num_labels, lr):
