@@ -39,47 +39,6 @@ category_list = [
     'topic-news'
 ]
 
-import random
-import glob
-from tqdm import tqdm
-import torch
-from torch.utils.data import DataLoader
-from transformers import BertJapaneseTokenizer, BertForSequenceClassification
-import pytorch_lightning as pl
-# 日本語の事前学習モデル
-MODEL_NAME = 'cl-tohoku/bert-base-japanese-whole-word-masking’
-
-dataset_for_loader = [
-    {'data':torch.tensor([0,1]), 'labels':torch.tensor(0)},
-    {'data':torch.tensor([2,3]), 'labels':torch.tensor(1)},
-    {'data':torch.tensor([4,5]), 'labels':torch.tensor(2)},
-    {'data':torch.tensor([6,7]), 'labels':torch.tensor(3)},
-]
-loader = DataLoader(dataset_for_loader, batch_size=2)
-# データセットからミニバッチを取り出す
-for idx, batch in enumerate(loader):
-    print(f'# batch {idx}')
-    print(batch)
-    ## ファインチューニングではここでミニバッチ毎の処理を行う
-
-loader = DataLoader(dataset_for_loader, batch_size=2, shuffle=True)
-for idx, batch in enumerate(loader):
-    print(f'# batch {idx}')
-    print(batch)
-
-# カテゴリーのリスト
-category_list = [
-    'dokujo-tsushin',
-    'it-life-hack',
-    'kaden-channel',
-    'livedoor-homme',
-    'movie-enter',
-    'peachy',
-    'smax',
-    'sports-watch',
-    'topic-news'
-]
-
 class BertForSequenceClassification_pl(pl.LightningModule):
         
     def __init__(self, model_name, num_labels, lr):
