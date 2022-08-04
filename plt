@@ -74,29 +74,6 @@ for label, category in enumerate(tqdm(category_list)):
 sentence_vectors = np.vstack(sentence_vectors)
 labels = np.array(labels)
 
-sentence_vectors_pca = PCA(n_components=2).fit_transform(sentence_vectors) 
-print(sentence_vectors_pca.shape)
-
-plt.figure(figsize=(10,10))
-for label in range(9):
-    plt.subplot(3,3,label+1)
-    index = labels == label
-    plt.plot(
-        sentence_vectors_pca[:,0], 
-        sentence_vectors_pca[:,1], 
-        'o', 
-        markersize=1, 
-        color=[0.7, 0.7, 0.7]
-    )
-    plt.plot(
-        sentence_vectors_pca[index,0], 
-        sentence_vectors_pca[index,1], 
-        'o', 
-        markersize=2, 
-        color='k'
-    )
-    plt.title(category_list[label])
-
 sentence_vectors_tsne = TSNE(n_components=2).fit_transform(sentence_vectors)    
 
 plt.figure(figsize=(10,10))
