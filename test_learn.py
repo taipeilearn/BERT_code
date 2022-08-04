@@ -1,3 +1,8 @@
+#データのダウンロード
+#!wget https://www.rondhuit.com/download/ldcc-20140209.tar.gz 
+#ファイルの解凍
+#!tar -zxf ldcc-20140209.tar.gz 
+
 import random
 import glob
 from tqdm import tqdm
@@ -8,6 +13,7 @@ import pytorch_lightning as pl
 # 日本語の事前学習モデル
 MODEL_NAME = 'cl-tohoku/bert-base-japanese-whole-word-masking’
 
+# データローダーの作成
 dataset_for_loader = [
     {'data':torch.tensor([0,1]), 'labels':torch.tensor(0)},
     {'data':torch.tensor([2,3]), 'labels':torch.tensor(1)},
