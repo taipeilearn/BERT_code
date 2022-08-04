@@ -1,0 +1,51 @@
+tokenizer = BertJapaneseTokenizer.from_pretrained(MODEL_NAME)
+
+bert_sc = BertForSequenceClassification.from_pretrained(
+    './model_transformers', num_labels=9
+)
+'''
+上のコードを以下のように変えると、学習してないモデルとなる
+bert_sc = BertForSequenceClassification.from_pretrained(
+    MODEL_NAME, num_labels=2
+)
+'''
+
+bert_sc = bert_sc.cuda()
+
+text_list = [
+    "バッファローコクヨサプライがUSB3.0対応のカードリーダー／ライターを発表した。SDHC対応のSD系メディアやコンパクトフラッシュ、メモリースティック系メディア、xDピクチャーカードといったデジカメやスマホ、携帯ゲームといった機器で使われている各種メディアを従来よりも短時間でPCに取り込むことが可能になる",
+    "レッドソックスの澤村拓一投手（３４）は２４日（日本時間２５日）に本拠地ボストンでのブルージェイズ戦で２―５の５回に２番手マウンドに上がり、１回を３安打３失点、１四球だった。",
+    "みなさんは普段、お酒のおつまみにどんなものを食べていますか？お手頃なスナック菓子をおつまみに飲んでいる人も少なくないと思いますが、このほど”ベビースターラーメン”にベストマッチするというビール『網走ビール＜ベビール＞』が発売されることになりました。"
+]
+category_list = [
+    'dokujo-tsushin',
+    'it-life-hack',
+    'kaden-channel',
+    'livedoor-homme',
+    'movie-enter',
+    'peachy',
+    'smax',
+    'sports-watch',
+    'topic-news'
+]
+
+# データの符号化
+encoding = tokenizer(
+    text_list, 
+    padding = 'longest',
+    return_tensors='pt'
+)
+encoding = { k: v.cuda() for k, v in encoding.items() }
+labels = torch.tensor(label_list).cuda()
+
+# 推論
+with torch.no_grad():
+    output = bert_sc.forward(**encoding)
+scores = output.logits
+labels_predicted = ( scores > 0 ).int().cpu().numpy().tolist()
+
+# 結果を表示
+for text, label in zip(text_list, labels_predicted):
+    print('--')
+    print(f'入力：{text}')
+    print(f'出力：{label}')
